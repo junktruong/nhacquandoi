@@ -27,9 +27,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($category_id <= 0) throw new RuntimeException('Chọn danh mục (mục cấp cuối).');
             if ($title === '') throw new RuntimeException('Thiếu tiêu đề bài hát.');
-            if (!isset($_FILES['audio']) || $_FILES['audio']['error'] !== UPLOAD_ERR_OK) throw new RuntimeException('Chọn file audio để upload.');
+            if (!isset($_FILES['media']) || $_FILES['media']['error'] !== UPLOAD_ERR_OK) throw new RuntimeException('Chọn file audio/video để upload.');
 
-            $f = $_FILES['audio'];
+            $f = $_FILES['media'];
             if ((int)$f['size'] > MAX_UPLOAD_BYTES) throw new RuntimeException('File quá lớn.');
 
             $tmp = (string)$f['tmp_name'];
@@ -38,24 +38,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $fi = new finfo(FILEINFO_MIME_TYPE);
             $mime = $fi->file($tmp) ?: 'application/octet-stream';
 
-            $allowed = $GLOBALS['ALLOWED_AUDIO_MIME'] ?? [];
-            if (!isset($allowed[$mime])) throw new RuntimeException('Định dạng không hỗ trợ. MIME: ' . $mime);
+            $allowedAudio = $GLOBALS['ALLOWED_AUDIO_MIME'] ?? [];
+            $allowedVideo = $GLOBALS['ALLOWED_VIDEO_MIME'] ?? [];
 
-            $ext = $allowed[$mime];
+            $mediaType = null;
+            if (isset($allowedAudio[$mime])) {
+                $mediaType = 'audio';
+                $ext = $allowedAudio[$mime];
+            } elseif (isset($allowedVideo[$mime])) {
+                $mediaType = 'video';
+                $ext = $allowedVideo[$mime];
+            } else {
+                throw new RuntimeException('Định dạng không hỗ trợ. MIME: ' . $mime);
+            }
             $safeName = bin2hex(random_bytes(16)) . '.' . $ext;
             $dest = rtrim(UPLOAD_DIR, '/\\') . DIRECTORY_SEPARATOR . $safeName;
 
             if (!move_uploaded_file($tmp, $dest)) throw new RuntimeException('Không lưu được file upload.');
             @chmod($dest, 0644);
 
-            $pdo->prepare("INSERT INTO songs(category_id, title, note, filename, mime, original_name, uploaded_at)
-                           VALUES(:cid,:title,:note,:fn,:mime,:orig,:t)")
+            $pdo->prepare("INSERT INTO songs(category_id, title, note, filename, mime, media_type, original_name, uploaded_at)
+                           VALUES(:cid,:title,:note,:fn,:mime,:media,:orig,:t)")
                 ->execute([
                     ':cid' => $category_id,
                     ':title' => $title,
                     ':note' => $note !== '' ? $note : null,
                     ':fn' => $safeName,
                     ':mime' => $mime,
+                    ':media' => $mediaType,
                     ':orig' => $orig,
                     ':t' => now_iso()
                 ]);
@@ -135,8 +145,8 @@ require_once __DIR__ . '/../includes/layout_header.php';
         <label class="label">Ghi chú (tuỳ chọn)</label>
         <input class="input" name="note" placeholder="VD: tempo/phiên bản...">
 
-        <label class="label">File audio</label>
-        <input class="input" type="file" name="audio" accept="audio/*" required>
+        <label class="label">File audio/video</label>
+        <input class="input" type="file" name="media" accept="audio/*,video/*" required>
 
         <button class="btn btn--gold" type="submit">Upload</button>
       </form>
@@ -172,7 +182,13 @@ require_once __DIR__ . '/../includes/layout_header.php';
               <?php if (!empty($s['note'])): ?><div class="muted small"><?= e((string)$s['note']) ?></div><?php endif; ?>
             </div>
             <div><?= e($s['category_name']) ?></div>
-            <div><audio controls preload="none" src="<?= e(UPLOAD_URL . '/' . $s['filename']) ?>"></audio></div>
+            <div>
+              <?php if (($s['media_type'] ?? 'audio') === 'video'): ?>
+                <video controls preload="none" src="<?= e(UPLOAD_URL . '/' . $s['filename']) ?>"></video>
+              <?php else: ?>
+                <audio controls preload="none" src="<?= e(UPLOAD_URL . '/' . $s['filename']) ?>"></audio>
+              <?php endif; ?>
+            </div>
             <div class="actions">
               <form method="post" class="inline" onsubmit="return confirm('Xóa bài này?');">
                 <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">

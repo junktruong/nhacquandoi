@@ -355,6 +355,9 @@
   const tCur = document.getElementById('tCur');
   const tDur = document.getElementById('tDur');
   const search = document.getElementById('songSearch');
+  const videoModal = document.getElementById('videoModal');
+  const videoPlayer = document.getElementById('videoPlayer');
+  const videoTitle = document.getElementById('videoTitle');
 
   const items = Array.from(list.querySelectorAll('.song-item'));
   let currentIndex = -1;
@@ -384,6 +387,10 @@
   function loadAndPlay(idx) {
     const el = items[idx];
     if (!el) return;
+    if (el.dataset.media === 'video') {
+      openVideo(el);
+      return;
+    }
     currentIndex = idx;
     nowTitle.textContent = el.dataset.title || 'Không tên';
     audio.src = el.dataset.src;
@@ -395,7 +402,7 @@
 
   function togglePlay() {
     if (currentIndex === -1) {
-      const visible = items.findIndex(el => el.style.display !== 'none');
+      const visible = items.findIndex(el => el.style.display !== 'none' && el.dataset.media !== 'video');
       if (visible !== -1) loadAndPlay(visible);
       return;
     }
@@ -413,7 +420,7 @@
     if (items.length === 0) return;
     for (let step = 1; step <= items.length; step++) {
       const idx = (currentIndex + step) % items.length;
-      if (items[idx].style.display !== 'none') { loadAndPlay(idx); return; }
+      if (items[idx].style.display !== 'none' && items[idx].dataset.media !== 'video') { loadAndPlay(idx); return; }
     }
   }
 
@@ -422,14 +429,78 @@
     for (let step = 1; step <= items.length; step++) {
       let idx = currentIndex - step;
       if (idx < 0) idx = items.length + idx;
-      if (items[idx].style.display !== 'none') { loadAndPlay(idx); return; }
+      if (items[idx].style.display !== 'none' && items[idx].dataset.media !== 'video') { loadAndPlay(idx); return; }
     }
   }
 
-  items.forEach((el) => el.addEventListener('click', () => loadAndPlay(Number(el.dataset.index))));
+  function openVideo(el) {
+    if (!videoModal || !videoPlayer) return;
+    const src = el.dataset.src;
+    if (!src) return;
+    if (audio && !audio.paused) {
+      audio.pause();
+      setSpin(false);
+      btnPlay.textContent = "▶";
+    }
+    videoPlayer.src = src;
+    videoTitle.textContent = el.dataset.title || 'Video';
+    videoModal.hidden = false;
+    videoPlayer.play().catch(() => {});
+  }
+
+  function closeVideo() {
+    if (!videoModal || !videoPlayer) return;
+    videoPlayer.pause();
+    videoPlayer.removeAttribute('src');
+    videoPlayer.load();
+    videoModal.hidden = true;
+  }
+
+  items.forEach((el) => {
+    el.addEventListener('click', (event) => {
+      const target = event.target;
+      const videoTrigger = target && target.closest('[data-action="video"]');
+      if (videoTrigger) {
+        event.stopPropagation();
+        openVideo(el);
+        return;
+      }
+      loadAndPlay(Number(el.dataset.index));
+    });
+
+    el.addEventListener('keydown', (event) => {
+      if (event.code === 'Enter' || event.code === 'Space') {
+        event.preventDefault();
+        loadAndPlay(Number(el.dataset.index));
+      }
+    });
+
+    const videoBtn = el.querySelector('[data-action="video"]');
+    if (videoBtn) {
+      videoBtn.addEventListener('keydown', (event) => {
+        if (event.code === 'Enter' || event.code === 'Space') {
+          event.preventDefault();
+          openVideo(el);
+        }
+      });
+    }
+  });
   btnPlay?.addEventListener('click', togglePlay);
   btnNext?.addEventListener('click', next);
   btnPrev?.addEventListener('click', prev);
+
+  videoModal?.addEventListener('click', (event) => {
+    const target = event.target;
+    if (target && target.closest('[data-action="close"]')) {
+      closeVideo();
+    }
+  });
+
+  window.addEventListener('keydown', (event) => {
+    if (event.code === 'Escape' && videoModal && !videoModal.hidden) {
+      closeVideo();
+    }
+  });
 
   audio.addEventListener('ended', next);
   audio.addEventListener('loadedmetadata', () => { tDur.textContent = fmt(audio.duration); });

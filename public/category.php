@@ -117,14 +117,33 @@ require_once __DIR__ . '/../includes/layout_header.php';
             <?php endif; ?>
 
             <?php foreach ($songs as $i => $song): ?>
+              <?php $mediaType = $song['media_type'] ?? 'audio'; ?>
               <button class="song-item"
+                      type="button"
                       data-index="<?= (int)$i ?>"
                       data-title="<?= e($song['title']) ?>"
-                      data-src="<?= e(UPLOAD_URL . '/' . $song['filename']) ?>">
+                      data-src="<?= e(UPLOAD_URL . '/' . $song['filename']) ?>"
+                      data-media="<?= e($mediaType) ?>">
                 <span class="song-item__idx"><?= (int)($i + 1) ?></span>
                 <span class="song-item__title"><?= e($song['title']) ?></span>
+                <?php if ($mediaType === 'video'): ?>
+                  <span class="song-item__video">
+                    <span class="video-btn" role="button" tabindex="0" data-action="video" title="Mở video">🎬</span>
+                  </span>
+                <?php endif; ?>
               </button>
             <?php endforeach; ?>
+          </div>
+
+          <div class="video-modal" id="videoModal" hidden>
+            <div class="video-modal__backdrop" data-action="close"></div>
+            <div class="video-modal__card">
+              <div class="video-modal__head">
+                <div class="video-modal__title" id="videoTitle">Video</div>
+                <button class="icon-btn" type="button" data-action="close" title="Đóng">✕</button>
+              </div>
+              <video id="videoPlayer" controls preload="metadata"></video>
+            </div>
           </div>
         <?php endif; ?>
       </div>

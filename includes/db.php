@@ -44,11 +44,21 @@ function init_schema(PDO $pdo): void {
             note TEXT NULL,
             filename TEXT NOT NULL UNIQUE,
             mime TEXT NULL,
+            media_type TEXT NOT NULL DEFAULT 'audio',
             original_name TEXT NULL,
             uploaded_at TEXT NOT NULL,
             FOREIGN KEY(category_id) REFERENCES categories(id) ON DELETE CASCADE
         );
     ");
+
+    $cols = $pdo->query("PRAGMA table_info(songs)")->fetchAll();
+    $hasMediaType = false;
+    foreach ($cols as $col) {
+        if (($col['name'] ?? '') === 'media_type') { $hasMediaType = true; break; }
+    }
+    if (!$hasMediaType) {
+        $pdo->exec("ALTER TABLE songs ADD COLUMN media_type TEXT NOT NULL DEFAULT 'audio';");
+    }
 
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS admins (
