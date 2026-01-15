@@ -45,6 +45,7 @@ function init_schema(PDO $pdo): void {
             filename TEXT NOT NULL UNIQUE,
             mime TEXT NULL,
             media_type TEXT NOT NULL DEFAULT 'audio',
+            has_lyrics INTEGER NOT NULL DEFAULT 1,
             original_name TEXT NULL,
             uploaded_at TEXT NOT NULL,
             FOREIGN KEY(category_id) REFERENCES categories(id) ON DELETE CASCADE
@@ -53,11 +54,18 @@ function init_schema(PDO $pdo): void {
 
     $cols = $pdo->query("PRAGMA table_info(songs)")->fetchAll();
     $hasMediaType = false;
+    $hasLyrics = false;
     foreach ($cols as $col) {
         if (($col['name'] ?? '') === 'media_type') { $hasMediaType = true; break; }
     }
     if (!$hasMediaType) {
         $pdo->exec("ALTER TABLE songs ADD COLUMN media_type TEXT NOT NULL DEFAULT 'audio';");
+    }
+    foreach ($cols as $col) {
+        if (($col['name'] ?? '') === 'has_lyrics') { $hasLyrics = true; break; }
+    }
+    if (!$hasLyrics) {
+        $pdo->exec("ALTER TABLE songs ADD COLUMN has_lyrics INTEGER NOT NULL DEFAULT 1;");
     }
 
     $pdo->exec("

@@ -449,6 +449,62 @@ code {
   margin-top: 10px;
 }
 
+.player__filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text);
+  position: relative;
+}
+
+.toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.toggle__track {
+  position: relative;
+  width: 46px;
+  height: 24px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .12);
+  border: 1px solid rgba(255, 255, 255, .2);
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  transition: background .2s ease, border .2s ease;
+}
+
+.toggle__track::after {
+  content: '';
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .9);
+  transform: translateX(0);
+  transition: transform .2s ease;
+}
+
+.toggle input:checked + .toggle__track {
+  background: rgba(214, 164, 0, .28);
+  border-color: rgba(214, 164, 0, .6);
+}
+
+.toggle input:checked + .toggle__track::after {
+  transform: translateX(20px);
+}
+
 .list-head {
   display: flex;
   align-items: center;
@@ -517,8 +573,30 @@ code {
   font-weight: 900
 }
 
-.song-item__video {
+.song-item__meta {
   margin-left: auto;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  border: 1px solid rgba(255, 255, 255, .16);
+  background: rgba(0, 0, 0, .28);
+  color: rgba(255, 255, 255, .8);
+  white-space: nowrap;
+}
+
+.song-item__meta--lyrics {
+  border-color: rgba(70, 200, 140, .5);
+  color: rgba(70, 200, 140, .95);
+}
+
+.song-item__meta--instrumental {
+  border-color: rgba(214, 164, 0, .45);
+  color: rgba(214, 164, 0, .95);
+}
+
+.song-item__video {
+  margin-left: 8px;
 }
 
 .video-btn {
@@ -633,6 +711,20 @@ code {
   outline: none;
 }
 
+.choice-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text);
+}
+
 .input--sm {
   padding: 8px 10px;
   border-radius: 12px;
@@ -663,6 +755,10 @@ code {
   padding: 12px 6px;
   border-bottom: 1px solid rgba(255, 255, 255, .08);
   align-items: center;
+}
+
+.table--songs .tr {
+  grid-template-columns: 70px 1.3fr 140px 120px 1fr 140px;
 }
 
 .table--cats .tr {
