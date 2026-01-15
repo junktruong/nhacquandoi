@@ -54,10 +54,9 @@ function render_tree(array $byParent, array $songCount, array $childCount, int $
     echo '      <button class="cat-btn cat-btn-edit" type="button">Sửa</button>';
     echo '      <button class="cat-btn cat-btn-save cat-btn--gold" type="button" style="display:none;">Lưu</button>';
 
-    // Leaf => show "Nhạc" (can upload). If it has children => only show link if there are existing songs.
-    if ($cc === 0 || $sc > 0) {
-      $label = ($cc === 0) ? 'Nhạc' : 'Nhạc (ẩn)';
-      echo '      <a class="cat-btn cat-btn-music" href="' . e(BASE_URL) . '/admin/songs.php?cat=' . $id . '" title="Quản lý bài hát">' . $label . '</a>';
+    // Leaf => show "Nhạc" (can upload). If it has children => hide songs link.
+    if ($cc === 0) {
+      echo '      <a class="cat-btn cat-btn-music" href="' . e(BASE_URL) . '/admin/songs.php?cat=' . $id . '" title="Quản lý bài hát">Nhạc</a>';
     }
 
     echo '      <button class="cat-btn cat-btn-add" type="button">+ Con</button>';
@@ -97,7 +96,7 @@ require_once __DIR__ . '/../includes/layout_header.php';
 
     <div class="cat-toolbar">
       <div>
-        <b>Kéo thả để đổi thứ tự (trong cùng một cấp)</b>
+        <b>Kéo thả để đổi thứ tự hoặc đổi cấp (kéo vào mục cha)</b>
         <div class="cat-hint">
           • Nhấn <b>Sửa</b> để đổi tên, Enter hoặc bấm <b>Lưu</b> để lưu.
           • <b>+ Con</b> để thêm mục con.

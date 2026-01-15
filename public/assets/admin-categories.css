@@ -22,7 +22,6 @@
 .cat-btn:hover{border-color:rgba(255,255,255,.22)}
 .cat-btn--gold{background:rgba(214,164,0,.92);color:#1a1204;border-color:rgba(0,0,0,.15)}
 .cat-btn--danger{background:rgba(224,90,90,.9);color:#1a0b0b;border-color:rgba(0,0,0,.18)}
-.cat-btn-music--hidden{opacity:.85}
 
 .cat-hint{color:rgba(255,255,255,.65);font-size:13px;margin-top:8px;line-height:1.4}
 .cat-item.is-saving{outline:3px solid rgba(214,164,0,.35)}

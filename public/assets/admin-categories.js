@@ -79,15 +79,8 @@
     if (kids === 0) {
       a.style.display = '';
       a.textContent = 'Nhạc';
-      a.classList.remove('cat-btn-music--hidden');
     } else {
-      if (songs > 0) {
-        a.style.display = '';
-        a.textContent = 'Nhạc (ẩn)';
-        a.classList.add('cat-btn-music--hidden');
-      } else {
-        a.style.display = 'none';
-      }
+      a.style.display = 'none';
     }
   }
 
@@ -114,12 +107,104 @@
     }, { offset: Number.NEGATIVE_INFINITY, element: null }).element;
   }
 
+  const dragContext = {
+    item: null,
+    sourceUl: null,
+    sourceNext: null
+  };
+
+  function setDragContext(li, sourceUl){
+    dragContext.item = li;
+    dragContext.sourceUl = sourceUl;
+    dragContext.sourceNext = li ? li.nextElementSibling : null;
+  }
+
+  function clearDragContext(){
+    dragContext.item = null;
+    dragContext.sourceUl = null;
+    dragContext.sourceNext = null;
+  }
+
+  function revertDrag(){
+    const { item, sourceUl, sourceNext } = dragContext;
+    if (!item || !sourceUl) return;
+    if (sourceNext) sourceUl.insertBefore(item, sourceNext);
+    else sourceUl.appendChild(item);
+  }
+
+  function getParentLiForList(ul){
+    if (!ul) return null;
+    const pid = getListParentId(ul);
+    if (!pid) return null;
+    return ul.closest('.cat-item');
+  }
+
+  function adjustKidsCount(ul, delta){
+    const parentLi = getParentLiForList(ul);
+    if (!parentLi) return;
+    parentLi.dataset.kids = String(Math.max(0, Number(parentLi.dataset.kids || '0') + delta));
+    updateBadgesAndMusic(parentLi);
+  }
+
+  function isInvalidDropTarget(dragging, targetUl){
+    if (!dragging || !targetUl) return true;
+    return dragging.contains(targetUl);
+  }
+
+  async function finalizeDrop(targetUl){
+    const dragging = dragContext.item || document.querySelector('.cat-item.dragging');
+    if (!dragging || !targetUl) return;
+
+    const sourceUl = dragContext.sourceUl || dragging.parentElement;
+    if (!sourceUl) return;
+
+    const targetParentId = getListParentId(targetUl);
+    const sourceParentId = getListParentId(sourceUl);
+
+    if (isInvalidDropTarget(dragging, targetUl)) {
+      revertDrag();
+      return;
+    }
+
+    if (targetUl !== sourceUl) {
+      const targetParentLi = getParentLiForList(targetUl);
+      if (targetParentLi) {
+        const targetSongs = Number(targetParentLi.dataset.songs || '0');
+        const targetKids = Number(targetParentLi.dataset.kids || '0');
+        if (targetSongs > 0 && targetKids === 0) {
+          const ok = confirm(`Mục cha đang có ${targetSongs} bài hát. Khi thêm mục con, danh mục này sẽ ẩn bài hát.\n\nBạn chắc chắn muốn kéo thả vào đây?`);
+          if (!ok) {
+            revertDrag();
+            return;
+          }
+        }
+      }
+
+      const moveData = await post('move', { id: String(dragging.dataset.id || ''), parent_id: String(targetParentId) });
+      if (!moveData.ok) {
+        alert(moveData.error || 'Lỗi chuyển danh mục');
+        revertDrag();
+        return;
+      }
+
+      adjustKidsCount(sourceUl, -1);
+      adjustKidsCount(targetUl, 1);
+    }
+
+    const results = await Promise.all([
+      computeAndSendOrder(targetUl),
+      targetUl !== sourceUl ? computeAndSendOrder(sourceUl) : Promise.resolve({ ok: true })
+    ]);
+    if (!results.every(r => r.ok)) alert('Lỗi sắp xếp');
+  }
+
   function initSortable(ul){
     ul.addEventListener('dragstart', (e) => {
       const handle = e.target.closest('.handle');
       if (!handle) return; // chỉ cho kéo từ handle
       const li = handle.closest('.cat-item');
       if (!li) return;
+      setDragContext(li, ul);
       li.classList.add('dragging');
       try { e.dataTransfer.setDragImage(li, 18, 18); } catch {}
       e.dataTransfer.effectAllowed = 'move';
@@ -129,12 +214,14 @@
     ul.addEventListener('dragend', (e) => {
       const li = e.target.closest('.cat-item');
       if (li) li.classList.remove('dragging');
+      clearDragContext();
     });
 
     ul.addEventListener('dragover', (e) => {
       e.preventDefault();
-      const dragging = ul.querySelector('.cat-item.dragging');
+      const dragging = document.querySelector('.cat-item.dragging');
       if (!dragging) return;
+      if (isInvalidDropTarget(dragging, ul)) return;
       const after = getDragAfterElement(ul, e.clientY);
       if (after == null) ul.appendChild(dragging);
       else ul.insertBefore(dragging, after);
@@ -142,8 +229,7 @@
 
     ul.addEventListener('drop', async (e) => {
       e.preventDefault();
-      const data = await computeAndSendOrder(ul);
-      if (!data.ok) alert(data.error || 'Lỗi sắp xếp');
+      await finalizeDrop(ul);
     });
   }
 
@@ -152,6 +238,32 @@
     qsa('.cat-item', scope).forEach(li => updateBadgesAndMusic(li));
   }
   enhanceTree(root);
+
+  root.addEventListener('dragover', (e) => {
+    const row = e.target.closest('.cat-row');
+    if (!row) return;
+    const dragging = document.querySelector('.cat-item.dragging');
+    if (!dragging) return;
+    const li = row.closest('.cat-item');
+    if (!li) return;
+    const childUl = qs('.cat-children', li);
+    if (!childUl || isInvalidDropTarget(dragging, childUl)) return;
+    e.preventDefault();
+  });
+
+  root.addEventListener('drop', async (e) => {
+    const row = e.target.closest('.cat-row');
+    if (!row) return;
+    const dragging = document.querySelector('.cat-item.dragging');
+    if (!dragging) return;
+    const li = row.closest('.cat-item');
+    if (!li) return;
+    const childUl = qs('.cat-children', li);
+    if (!childUl) return;
+    if (isInvalidDropTarget(dragging, childUl)) return;
+    childUl.appendChild(dragging);
+    await finalizeDrop(childUl);
+  });
 
   root.addEventListener('click', async (e) => {
     const btn = e.target.closest('button');

@@ -116,6 +116,44 @@ try {
     ok(['parent_id' => $parent_id]);
   }
 
+  if ($action === 'move') {
+    $id = (int)($_POST['id'] ?? 0);
+    $parent_id = (int)($_POST['parent_id'] ?? 0);
+    if ($id <= 0) fail('Thiếu ID.');
+
+    if ($parent_id === $id) fail('Không thể chọn chính nó làm cha.');
+
+    $checkId = $parent_id > 0 ? $parent_id : null;
+    while ($checkId !== null) {
+      if ($checkId === $id) fail('Không thể chuyển vào chính mục con của nó.');
+      $st = $pdo->prepare("SELECT parent_id FROM categories WHERE id = :id");
+      $st->execute([':id' => $checkId]);
+      $row = $st->fetch();
+      $checkId = $row && $row['parent_id'] !== null ? (int)$row['parent_id'] : null;
+    }
+
+    $pdo->beginTransaction();
+
+    if ($parent_id > 0) {
+      $st = $pdo->prepare("SELECT COALESCE(MAX(sort),0) AS m FROM categories WHERE parent_id = :pid");
+      $st->execute([':pid' => $parent_id]);
+    } else {
+      $st = $pdo->query("SELECT COALESCE(MAX(sort),0) AS m FROM categories WHERE parent_id IS NULL");
+    }
+    $maxSort = (int)($st->fetch()['m'] ?? 0);
+    $sort = $maxSort + 10;
+
+    $pdo->prepare("UPDATE categories SET parent_id = :pid, sort = :sort WHERE id = :id")
+        ->execute([
+          ':pid' => $parent_id > 0 ? $parent_id : null,
+          ':sort' => $sort,
+          ':id' => $id
+        ]);
+
+    $pdo->commit();
+    ok(['id' => $id, 'parent_id' => $parent_id, 'sort' => $sort]);
+  }
+
   fail('Action không hợp lệ.');
 } catch (Throwable $e) {
   if ($pdo->inTransaction()) $pdo->rollBack();
