@@ -331,9 +331,7 @@
     toast(`Offline xong: +${cached} bài (lỗi ${failed})`);
   }
 
-  const isStandalone =
-    window.matchMedia('(display-mode: standalone)').matches ||
-    window.navigator.standalone === true;
+
 
   // chạy nếu đã cài hoặc đang mở dạng app
   if (isStandalone || localStorage.getItem('pwa_installed') === '1') {
