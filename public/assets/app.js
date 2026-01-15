@@ -331,8 +331,6 @@
     toast(`Offline xong: +${cached} bài (lỗi ${failed})`);
   }
 
-
-
   // chạy nếu đã cài hoặc đang mở dạng app
   if (isStandalone || localStorage.getItem('pwa_installed') === '1') {
     window.addEventListener('load', () => setTimeout(precacheAllAudio, 1200));
