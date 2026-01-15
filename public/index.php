@@ -11,11 +11,17 @@ $title = APP_NAME;
 require_once __DIR__ . '/../includes/layout_header.php';
 ?>
 
+<div class="video-bg" aria-hidden="true">
+  <video class="video-bg__media" autoplay muted loop playsinline></video>
+  <div class="video-bg__overlay"></div>
+</div>
+
 <main class="container">
   <div class="hero">
     <div class="hero__card">
       <div class="hero__title"><?= e(APP_NAME) ?></div>
       <div class="hero__sub">Chọn danh mục để phát nhạc. Danh mục hỗ trợ nhiều cấp (đặc biệt mục “Nhạc truyền thống binh chủng” có thể thêm nhiều binh chủng con).</div>
+      <div class="hero__author">Tác giả: Trung úy Nguyễn Văn Đúc - Phó đội trưởng Vận động quần chúng/ Đồn Biên phòng Cửa Lân</div>
       <div class="hero__actions">
         <a class="btn btn--gold" href="#cats">Bắt đầu</a>
         <a class="btn btn--ghost" href="<?= e(BASE_URL) ?>/admin">Admin</a>
@@ -33,4 +39,64 @@ require_once __DIR__ . '/../includes/layout_header.php';
     <?php endforeach; ?>
   </div>
 </main>
+<script>
+  (() => {
+    const video = document.querySelector('.video-bg__media');
+    if (!video || !window.MediaRecorder) {
+      return;
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 640;
+    canvas.height = 360;
+    const ctx = canvas.getContext('2d');
+    const stream = canvas.captureStream(30);
+    const recorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp9' });
+    const chunks = [];
+
+    recorder.ondataavailable = (event) => {
+      if (event.data.size) {
+        chunks.push(event.data);
+      }
+    };
+
+    recorder.onstop = () => {
+      const blob = new Blob(chunks, { type: 'video/webm' });
+      video.src = URL.createObjectURL(blob);
+      video.play().catch(() => undefined);
+    };
+
+    const drawFrame = (time) => {
+      const t = time / 1000;
+      const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      grad.addColorStop(0, 'rgba(10, 20, 15, 0.9)');
+      grad.addColorStop(0.5, `rgba(214, 164, 0, ${0.15 + 0.1 * Math.sin(t)})`);
+      grad.addColorStop(1, 'rgba(5, 10, 8, 0.95)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+      for (let i = 0; i < 25; i += 1) {
+        const x = (Math.sin(t + i) * 0.5 + 0.5) * canvas.width;
+        const y = (Math.cos(t + i * 0.4) * 0.5 + 0.5) * canvas.height;
+        ctx.beginPath();
+        ctx.arc(x, y, 40 + 20 * Math.sin(t + i), 0, Math.PI * 2);
+        ctx.fill();
+      }
+    };
+
+    recorder.start(100);
+    const start = performance.now();
+    const animate = (now) => {
+      drawFrame(now - start);
+      if (now - start < 2000) {
+        requestAnimationFrame(animate);
+      } else {
+        recorder.stop();
+      }
+    };
+
+    requestAnimationFrame(animate);
+  })();
+</script>
 <?php require_once __DIR__ . '/../includes/layout_footer.php'; ?>
