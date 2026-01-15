@@ -362,7 +362,7 @@
 
   function applyFilters() {
     const q = (search?.value || '').trim().toLowerCase();
-    const targetLyrics = lyricsToggle ? (lyricsToggle.checked ? '0' : '1') : null;
+    const targetLyrics = getTargetLyrics();
     items.forEach(el => {
       const t = (el.dataset.title || '').toLowerCase();
       const matchTitle = (q === '' || t.includes(q));
@@ -392,6 +392,10 @@
     if (idx >= 0 && items[idx]) items[idx].classList.add('is-playing');
   }
 
+  function getTargetLyrics() {
+    return lyricsToggle ? (lyricsToggle.checked ? '0' : '1') : null;
+  }
+
   function loadAndPlay(idx) {
     const el = items[idx];
     if (!el) return;
@@ -406,6 +410,49 @@
     audio.play().then(() => setSpin(true)).catch(() => setSpin(false));
     setActive(idx);
     btnPlay.textContent = "⏸";
+  }
+
+  function swapToItem(idx, keepTime, shouldPlay) {
+    const el = items[idx];
+    if (!el) return;
+    if (el.dataset.media === 'video') return;
+    currentIndex = idx;
+    nowTitle.textContent = el.dataset.title || 'Không tên';
+    audio.src = el.dataset.src;
+    setActive(idx);
+    btnPlay.textContent = shouldPlay ? "⏸" : "▶";
+
+    const onLoaded = () => {
+      audio.currentTime = Math.min(keepTime, audio.duration || keepTime);
+      if (shouldPlay) {
+        audio.play().then(() => setSpin(true)).catch(() => setSpin(false));
+      } else {
+        setSpin(false);
+      }
+      audio.removeEventListener('loadedmetadata', onLoaded);
+    };
+    audio.addEventListener('loadedmetadata', onLoaded);
+  }
+
+  function switchVariantOnToggle() {
+    if (currentIndex === -1) return;
+    const currentItem = items[currentIndex];
+    if (!currentItem || currentItem.dataset.media === 'video') return;
+    const targetLyrics = getTargetLyrics();
+    if (!targetLyrics) return;
+    if (currentItem.dataset.lyrics === targetLyrics) return;
+
+    const currentTitle = (currentItem.dataset.title || '').toLowerCase();
+    const matchIdx = items.findIndex(el => (
+      el.dataset.media !== 'video' &&
+      (el.dataset.title || '').toLowerCase() === currentTitle &&
+      el.dataset.lyrics === targetLyrics
+    ));
+    if (matchIdx === -1) return;
+
+    const keepTime = audio.currentTime || 0;
+    const shouldPlay = !audio.paused;
+    swapToItem(matchIdx, keepTime, shouldPlay);
   }
 
   function togglePlay() {
@@ -530,7 +577,10 @@
   audio.volume = Number(vol.value) / 100;
 
   search?.addEventListener('input', applyFilters);
-  lyricsToggle?.addEventListener('change', applyFilters);
+  lyricsToggle?.addEventListener('change', () => {
+    switchVariantOnToggle();
+    applyFilters();
+  });
 
   applyFilters();
 
