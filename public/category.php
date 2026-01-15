@@ -104,6 +104,16 @@ require_once __DIR__ . '/../includes/layout_header.php';
               <span class="muted">Âm lượng</span>
               <input type="range" id="vol" min="0" max="100" value="70" />
             </div>
+
+            <div class="player__filters">
+              <span class="muted">Chế độ phát</span>
+              <label class="toggle">
+                <span class="toggle__label">Có lời</span>
+                <input type="checkbox" id="lyricsToggle" aria-label="Chuyển đổi có lời và nhạc nền">
+                <span class="toggle__track"></span>
+                <span class="toggle__label">Nhạc nền</span>
+              </label>
+            </div>
           </div>
 
           <div class="list-head">
@@ -123,9 +133,13 @@ require_once __DIR__ . '/../includes/layout_header.php';
                       data-index="<?= (int)$i ?>"
                       data-title="<?= e($song['title']) ?>"
                       data-src="<?= e(UPLOAD_URL . '/' . $song['filename']) ?>"
-                      data-media="<?= e($mediaType) ?>">
+                      data-media="<?= e($mediaType) ?>"
+                      data-lyrics="<?= !empty($song['has_lyrics']) ? '1' : '0' ?>">
                 <span class="song-item__idx"><?= (int)($i + 1) ?></span>
                 <span class="song-item__title"><?= e($song['title']) ?></span>
+                <span class="song-item__meta <?= !empty($song['has_lyrics']) ? 'song-item__meta--lyrics' : 'song-item__meta--instrumental' ?>">
+                  <?= !empty($song['has_lyrics']) ? 'Có lời' : 'Nhạc nền' ?>
+                </span>
                 <?php if ($mediaType === 'video'): ?>
                   <span class="song-item__video">
                     <span class="video-btn" role="button" tabindex="0" data-action="video" title="Mở video">🎬</span>

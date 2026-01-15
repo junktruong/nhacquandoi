@@ -24,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $category_id = (int)($_POST['category_id'] ?? 0);
             $title = trim((string)($_POST['title'] ?? ''));
             $note = trim((string)($_POST['note'] ?? ''));
+            $hasLyrics = ((int)($_POST['has_lyrics'] ?? 1)) === 1 ? 1 : 0;
 
             if ($category_id <= 0) throw new RuntimeException('Chọn danh mục (mục cấp cuối).');
             if ($title === '') throw new RuntimeException('Thiếu tiêu đề bài hát.');
@@ -57,8 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!move_uploaded_file($tmp, $dest)) throw new RuntimeException('Không lưu được file upload.');
             @chmod($dest, 0644);
 
-            $pdo->prepare("INSERT INTO songs(category_id, title, note, filename, mime, media_type, original_name, uploaded_at)
-                           VALUES(:cid,:title,:note,:fn,:mime,:media,:orig,:t)")
+            $pdo->prepare("INSERT INTO songs(category_id, title, note, filename, mime, media_type, has_lyrics, original_name, uploaded_at)
+                           VALUES(:cid,:title,:note,:fn,:mime,:media,:lyrics,:orig,:t)")
                 ->execute([
                     ':cid' => $category_id,
                     ':title' => $title,
@@ -66,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ':fn' => $safeName,
                     ':mime' => $mime,
                     ':media' => $mediaType,
+                    ':lyrics' => $hasLyrics,
                     ':orig' => $orig,
                     ':t' => now_iso()
                 ]);
@@ -145,6 +147,18 @@ require_once __DIR__ . '/../includes/layout_header.php';
         <label class="label">Ghi chú (tuỳ chọn)</label>
         <input class="input" name="note" placeholder="VD: tempo/phiên bản...">
 
+        <label class="label">Loại bài hát</label>
+        <div class="choice-group">
+          <label class="choice">
+            <input type="radio" name="has_lyrics" value="1" checked>
+            <span>Có lời</span>
+          </label>
+          <label class="choice">
+            <input type="radio" name="has_lyrics" value="0">
+            <span>Nhạc nền (không lời)</span>
+          </label>
+        </div>
+
         <label class="label">File audio/video</label>
         <input class="input" type="file" name="media" accept="audio/*,video/*" required>
 
@@ -169,9 +183,9 @@ require_once __DIR__ . '/../includes/layout_header.php';
         </select>
       </form>
 
-      <div class="table">
+      <div class="table table--songs">
         <div class="tr th">
-          <div>ID</div><div>Tiêu đề</div><div>Danh mục</div><div>Nghe thử</div><div></div>
+          <div>ID</div><div>Tiêu đề</div><div>Danh mục</div><div>Loại</div><div>Nghe thử</div><div></div>
         </div>
 
         <?php foreach ($songs as $s): ?>
@@ -182,6 +196,9 @@ require_once __DIR__ . '/../includes/layout_header.php';
               <?php if (!empty($s['note'])): ?><div class="muted small"><?= e((string)$s['note']) ?></div><?php endif; ?>
             </div>
             <div><?= e($s['category_name']) ?></div>
+            <div>
+              <?= !empty($s['has_lyrics']) ? 'Có lời' : 'Nhạc nền' ?>
+            </div>
             <div>
               <?php if (($s['media_type'] ?? 'audio') === 'video'): ?>
                 <video controls preload="none" src="<?= e(UPLOAD_URL . '/' . $s['filename']) ?>"></video>

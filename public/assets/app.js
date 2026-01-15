@@ -351,6 +351,7 @@
   const tCur = document.getElementById('tCur');
   const tDur = document.getElementById('tDur');
   const search = document.getElementById('songSearch');
+  const lyricsToggle = document.getElementById('lyricsToggle');
   const videoModal = document.getElementById('videoModal');
   const videoPlayer = document.getElementById('videoPlayer');
   const videoTitle = document.getElementById('videoTitle');
@@ -358,6 +359,17 @@
   const items = Array.from(list.querySelectorAll('.song-item'));
   let currentIndex = -1;
   let seeking = false;
+
+  function applyFilters() {
+    const q = (search?.value || '').trim().toLowerCase();
+    const targetLyrics = lyricsToggle ? (lyricsToggle.checked ? '0' : '1') : null;
+    items.forEach(el => {
+      const t = (el.dataset.title || '').toLowerCase();
+      const matchTitle = (q === '' || t.includes(q));
+      const matchLyrics = targetLyrics ? (el.dataset.lyrics === targetLyrics) : true;
+      el.style.display = (matchTitle && matchLyrics) ? '' : 'none';
+    });
+  }
 
   function setSpin(on) {
     if (!logo) return;
@@ -517,13 +529,10 @@
   vol.addEventListener('input', () => audio.volume = Number(vol.value) / 100);
   audio.volume = Number(vol.value) / 100;
 
-  search?.addEventListener('input', () => {
-    const q = (search.value || '').trim().toLowerCase();
-    items.forEach(el => {
-      const t = (el.dataset.title || '').toLowerCase();
-      el.style.display = (q === '' || t.includes(q)) ? '' : 'none';
-    });
-  });
+  search?.addEventListener('input', applyFilters);
+  lyricsToggle?.addEventListener('change', applyFilters);
+
+  applyFilters();
 
   window.addEventListener('keydown', (e) => {
     if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
