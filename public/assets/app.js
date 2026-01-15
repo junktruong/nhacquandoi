@@ -459,7 +459,9 @@
   items.forEach((el) => {
     el.addEventListener('click', (event) => {
       const target = event.target;
-      if (target && target.closest('.video-btn')) {
+      const videoTrigger = target && target.closest('[data-action="video"]');
+      if (videoTrigger) {
+        event.stopPropagation();
         openVideo(el);
         return;
       }
@@ -472,6 +474,16 @@
         loadAndPlay(Number(el.dataset.index));
       }
     });
+
+    const videoBtn = el.querySelector('[data-action="video"]');
+    if (videoBtn) {
+      videoBtn.addEventListener('keydown', (event) => {
+        if (event.code === 'Enter' || event.code === 'Space') {
+          event.preventDefault();
+          openVideo(el);
+        }
+      });
+    }
   });
   btnPlay?.addEventListener('click', togglePlay);
   btnNext?.addEventListener('click', next);
