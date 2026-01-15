@@ -117,14 +117,34 @@ require_once __DIR__ . '/../includes/layout_header.php';
             <?php endif; ?>
 
             <?php foreach ($songs as $i => $song): ?>
-              <button class="song-item"
-                      data-index="<?= (int)$i ?>"
-                      data-title="<?= e($song['title']) ?>"
-                      data-src="<?= e(UPLOAD_URL . '/' . $song['filename']) ?>">
+              <?php $mediaType = $song['media_type'] ?? 'audio'; ?>
+              <div class="song-item"
+                   role="button"
+                   tabindex="0"
+                   data-index="<?= (int)$i ?>"
+                   data-title="<?= e($song['title']) ?>"
+                   data-src="<?= e(UPLOAD_URL . '/' . $song['filename']) ?>"
+                   data-media="<?= e($mediaType) ?>">
                 <span class="song-item__idx"><?= (int)($i + 1) ?></span>
                 <span class="song-item__title"><?= e($song['title']) ?></span>
-              </button>
+                <?php if ($mediaType === 'video'): ?>
+                  <span class="song-item__video">
+                    <button class="video-btn" type="button" data-action="video" title="Mở video">🎬</button>
+                  </span>
+                <?php endif; ?>
+              </div>
             <?php endforeach; ?>
+          </div>
+
+          <div class="video-modal" id="videoModal" hidden>
+            <div class="video-modal__backdrop" data-action="close"></div>
+            <div class="video-modal__card">
+              <div class="video-modal__head">
+                <div class="video-modal__title" id="videoTitle">Video</div>
+                <button class="icon-btn" type="button" data-action="close" title="Đóng">✕</button>
+              </div>
+              <video id="videoPlayer" controls preload="metadata"></video>
+            </div>
           </div>
         <?php endif; ?>
       </div>

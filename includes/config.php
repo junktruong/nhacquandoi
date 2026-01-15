@@ -33,4 +33,13 @@ $GLOBALS['ALLOWED_AUDIO_MIME'] = [
     'audio/x-m4a'  => 'm4a',
 ];
 
+/** MIME video được phép */
+$GLOBALS['ALLOWED_VIDEO_MIME'] = [
+    'video/mp4'        => 'mp4',
+    'video/webm'       => 'webm',
+    'video/ogg'        => 'ogv',
+    'video/quicktime'  => 'mov',
+    'video/x-matroska' => 'mkv',
+];
+
 define('UPLOAD_URL', BASE_URL . '/uploads');
