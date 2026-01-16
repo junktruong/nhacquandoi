@@ -19,9 +19,13 @@ require_once __DIR__ . '/../includes/layout_header.php';
 <main class="container">
   <div class="hero">
     <div class="hero__card">
-      <div class="hero__title"><?= e(APP_NAME) ?></div>
-      <div class="hero__sub">Chọn danh mục để phát nhạc. Danh mục hỗ trợ nhiều cấp (đặc biệt mục “Nhạc truyền thống binh chủng” có thể thêm nhiều binh chủng con).</div>
-      <div class="hero__author">Tác giả: Trung úy Nguyễn Văn Đúc - Phó đội trưởng Vận động quần chúng/ Đồn Biên phòng Cửa Lân</div>
+      <div class="hero__badge">Quân đội nhân dân Việt Nam</div>
+      <div class="hero__title">Hệ thống phát nhạc truyền thống</div>
+      <div class="hero__sub">Bố trí danh mục rõ ràng, chuẩn hóa theo tuyến – ngành – binh chủng, sẵn sàng phục vụ tuyên truyền và sinh hoạt đơn vị.</div>
+      <ul class="hero__details">
+        <li>Hỗ trợ danh mục nhiều cấp và quản trị tập trung.</li>
+        <li>Đảm bảo thống nhất nội dung, dễ truy cập, dễ vận hành.</li>
+      </ul>
       <div class="hero__actions">
         <a class="btn btn--gold" href="#cats">Bắt đầu</a>
         <a class="btn btn--ghost" href="<?= e(BASE_URL) ?>/admin">Admin</a>
@@ -37,6 +41,12 @@ require_once __DIR__ . '/../includes/layout_header.php';
         <div class="card__sub">Xem bài hát / mục con</div>
       </a>
     <?php endforeach; ?>
+  </div>
+
+  <div class="page-author">
+    <div class="page-author__label">Tác giả</div>
+    <div class="page-author__name">Trung úy Nguyễn Văn Đúc</div>
+    <div class="page-author__unit">Phó đội trưởng Vận động quần chúng • Đồn Biên phòng Cửa Lân</div>
   </div>
 </main>
 <script>

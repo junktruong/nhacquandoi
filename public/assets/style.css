@@ -126,9 +126,25 @@ code {
   backdrop-filter: blur(10px);
 }
 
+.hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(214, 164, 0, .45);
+  background: rgba(214, 164, 0, .12);
+  color: rgba(214, 164, 0, .95);
+  font-weight: 800;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
 .hero__title {
   font-size: 32px;
   font-weight: 900;
+  margin-top: 12px;
 }
 
 .hero__sub {
@@ -136,11 +152,15 @@ code {
   color: var(--muted)
 }
 
-.hero__author {
-  margin-top: 12px;
-  font-weight: 600;
-  color: var(--muted);
-  line-height: 1.5;
+.hero__details {
+  margin: 14px 0 0;
+  padding: 0 0 0 18px;
+  color: rgba(255, 255, 255, .75);
+  line-height: 1.6;
+}
+
+.hero__details li {
+  margin-bottom: 6px;
 }
 
 .hero__actions {
@@ -177,6 +197,34 @@ code {
 
 .grid--admin2 {
   grid-template-columns: 360px minmax(0, 1fr);
+}
+
+.page-author {
+  margin: 28px auto 0;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, .12);
+  text-align: center;
+  color: var(--muted);
+}
+
+.page-author__label {
+  font-weight: 800;
+  letter-spacing: .4px;
+  color: rgba(214, 164, 0, .95);
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.page-author__name {
+  margin-top: 6px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.page-author__unit {
+  margin-top: 4px;
+  font-size: 14px;
 }
 
 @media (max-width: 900px) {
