@@ -10,7 +10,7 @@ declare(strict_types=1);
 define('APP_NAME', 'Quân nhạc số');
 define('DB_PATH', __DIR__ . '/../data/app.sqlite');
 define('UPLOAD_DIR', __DIR__ . '/../public/uploads');
-define('MAX_UPLOAD_BYTES', 120 * 1024 * 1024); // 120MB
+define('MAX_UPLOAD_BYTES', 200 * 1024 * 1024); // 120MB
 
 /**
  * BASE_URL:
