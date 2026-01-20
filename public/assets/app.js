@@ -232,12 +232,17 @@
   // ===== PWA install (ổn định) =====
   const installBtn = document.getElementById('installBtn');
   let deferredPrompt = null;
+  const ua = navigator.userAgent || '';
+  const isIOS = /iphone|ipad|ipod/i.test(ua);
+  const isMacOS = /macintosh/i.test(ua);
+  const isSafari = /safari/i.test(ua) && !/chrome|chromium|crios|edg/i.test(ua);
+  const isAppleSafari = isSafari && (isIOS || isMacOS);
 
   function setInstallBtn(mode) {
     if (!installBtn) return;
     if (mode === 'hide') { installBtn.style.display = 'none'; return; }
     installBtn.style.display = '';
-    installBtn.disabled = (mode !== 'ready');
+    installBtn.disabled = (mode === 'disabled');
     installBtn.textContent = (mode === 'ready') ? 'Cài app' : 'Tải app';
   }
 
@@ -245,6 +250,10 @@
   setInstallBtn('disabled');
   if (isStandalone || localStorage.getItem('pwa_installed') === '1') {
     setInstallBtn('hide');
+  }
+  // Safari iOS/macOS không có beforeinstallprompt → cho phép bấm để hiện hướng dẫn
+  if (isAppleSafari && !isStandalone && localStorage.getItem('pwa_installed') !== '1') {
+    setInstallBtn('ready');
   }
 
   if ('serviceWorker' in navigator) {
@@ -261,7 +270,15 @@
 
   installBtn?.addEventListener('click', async () => {
     if (!deferredPrompt) {
-      alert('Edge chưa hiện prompt cài lúc này. Anh có thể cài bằng: ⋯ → Apps → Install this site as an app.');
+      if (isAppleSafari) {
+        alert(
+          isIOS
+            ? 'Trên iOS Safari: bấm nút Chia sẻ (□↑) → "Thêm vào Màn hình chính".'
+            : 'Trên macOS Safari: vào File → "Add to Dock" để cài app.'
+        );
+      } else {
+        alert('Trình duyệt chưa hiện prompt cài lúc này. Anh có thể cài bằng: ⋯ → Apps → Install this site as an app.');
+      }
       return;
     }
     deferredPrompt.prompt();
