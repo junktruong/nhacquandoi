@@ -28,13 +28,8 @@ require_once __DIR__ . '/../includes/layout_header.php';
       <div class="hero__badge">Quân đội nhân dân Việt Nam</div>
       <div class="hero__title">Hệ thống phát nhạc truyền thống</div>
       <div class="hero__sub"></div>
-      <ul class="hero__details">
-       
-      </ul>
-      <div class="hero__actions">
-        <a class="btn btn--gold" href="#cats">Bắt đầu</a>
-        <a class="btn btn--ghost" href="<?= e(BASE_URL) ?>/admin">Admin</a>
-      </div>
+     
+     
     </div>
   </div>
 
@@ -43,7 +38,7 @@ require_once __DIR__ . '/../includes/layout_header.php';
     <?php foreach ($tops as $c): ?>
       <a class="card card--cat" href="<?= e(BASE_URL) ?>/category.php?id=<?= (int)$c['id'] ?>">
         <div class="card__title"><?= e($c['name']) ?></div>
-        <!-- <div class="card__sub">Xem bài hát / mục con</div> -->
+       
       </a>
     <?php endforeach; ?>
   </div>
