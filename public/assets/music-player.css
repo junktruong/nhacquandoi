@@ -35,6 +35,12 @@
   justify-content: space-between;
 }
 
+.page-player .sidebar__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .page-player .player-card {
   max-width: 900px;
   background: linear-gradient(160deg, rgba(12, 18, 14, 0.94), rgba(10, 16, 12, 0.98));
@@ -136,6 +142,15 @@
   flex-wrap: wrap;
 }
 
+.page-player .player__progress {
+  width: 100%;
+}
+
+.page-player .player__progress input[type='range'] {
+  flex: 1;
+  min-width: 200px;
+}
+
 .page-player .player__filters {
   justify-content: center;
 }
@@ -195,7 +210,7 @@
 
 .page-player .song-list {
   display: grid;
-  gap: 10px;
+  gap: 14px;
 }
 
 .page-player .song-item {
