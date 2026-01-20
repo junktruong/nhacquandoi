@@ -501,6 +501,9 @@
     videoTitle.textContent = el.dataset.title || 'Video';
     videoModal.hidden = false;
     videoPlayer.play().catch(() => {});
+    if (document.fullscreenElement !== videoPlayer && videoPlayer.requestFullscreen) {
+      videoPlayer.requestFullscreen().catch(() => {});
+    }
   }
 
   function closeVideo() {
@@ -509,6 +512,9 @@
     videoPlayer.removeAttribute('src');
     videoPlayer.load();
     videoModal.hidden = true;
+    if (document.fullscreenElement && document.exitFullscreen) {
+      document.exitFullscreen().catch(() => {});
+    }
   }
 
   items.forEach((el) => {
