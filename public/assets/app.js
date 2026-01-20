@@ -385,7 +385,11 @@
   }
   audio.addEventListener('play', () => setSpin(true));
   audio.addEventListener('pause', () => setSpin(false));
-  audio.addEventListener('ended', () => setSpin(false));
+  audio.addEventListener('ended', () => {
+    setSpin(false);
+    btnPlay.textContent = "▶";
+    audio.currentTime = 0;
+  });
 
   function fmt(sec) {
     if (!isFinite(sec) || sec < 0) return "00:00";
@@ -571,7 +575,7 @@
     }
   });
 
-  audio.addEventListener('ended', next);
+  // Khi phát hết bài, tự dừng và không chuyển sang bài tiếp theo.
   audio.addEventListener('loadedmetadata', () => { tDur.textContent = fmt(audio.duration); });
   audio.addEventListener('timeupdate', () => {
     if (seeking) return;
