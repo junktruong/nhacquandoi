@@ -6,11 +6,6 @@
 
 .cat-row{display:grid;grid-template-columns:34px 1fr auto auto;gap:10px;align-items:center}
 
-.cat-docs{background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px}
-.cat-docs__label{font-weight:900}
-.cat-docs__row{display:flex;gap:10px;flex-wrap:wrap}
-.cat-docs__input{flex:1;min-width:220px;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.25);color:rgba(255,255,255,.92);outline:none;font-weight:700}
-
 .cat-badges{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .cat-badge{display:inline-flex;align-items:center;padding:5px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);color:rgba(255,255,255,.78);font-size:12px;font-weight:800;white-space:nowrap}
 .cat-badge--kids{border-color:rgba(120,180,255,.25)}

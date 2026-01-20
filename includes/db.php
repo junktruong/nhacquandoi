@@ -31,10 +31,26 @@ function init_schema(PDO $pdo): void {
             name TEXT NOT NULL,
             slug TEXT NOT NULL UNIQUE,
             sort INTEGER NOT NULL DEFAULT 0,
+            docs_label TEXT NULL,
+            docs_url TEXT NULL,
             created_at TEXT NOT NULL,
             FOREIGN KEY(parent_id) REFERENCES categories(id) ON DELETE CASCADE
         );
     ");
+
+    $catCols = $pdo->query("PRAGMA table_info(categories)")->fetchAll();
+    $hasDocsLabel = false;
+    $hasDocsUrl = false;
+    foreach ($catCols as $col) {
+        if (($col['name'] ?? '') === 'docs_label') { $hasDocsLabel = true; }
+        if (($col['name'] ?? '') === 'docs_url') { $hasDocsUrl = true; }
+    }
+    if (!$hasDocsLabel) {
+        $pdo->exec("ALTER TABLE categories ADD COLUMN docs_label TEXT NULL;");
+    }
+    if (!$hasDocsUrl) {
+        $pdo->exec("ALTER TABLE categories ADD COLUMN docs_url TEXT NULL;");
+    }
 
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS songs (

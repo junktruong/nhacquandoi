@@ -27,6 +27,13 @@ if (!empty($cat['parent_id'])) {
     $siblings = $children;
 }
 
+$docSource = $parent ?: $cat;
+$docsUrl = trim((string)($docSource['docs_url'] ?? ''));
+$docsLabel = trim((string)($docSource['docs_label'] ?? ''));
+if ($docsLabel === '') {
+    $docsLabel = 'Tài liệu';
+}
+
 $songs = [];
 if (!$children) {
     $ss = $pdo->prepare("SELECT * FROM songs WHERE category_id = :id ORDER BY id DESC");
@@ -60,7 +67,7 @@ require_once __DIR__ . '/../includes/layout_header.php';
         <?php endif; ?>
         <?php if ($docsUrl !== ''): ?>
           <a class="pill" href="<?= e($docsUrl) ?>" target="_blank" rel="noopener">
-            Tài liệu
+            <?= e($docsLabel) ?>
           </a>
         <?php endif; ?>
       </div>
