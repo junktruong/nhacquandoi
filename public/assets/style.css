@@ -242,17 +242,7 @@ a:hover { opacity: 0.9; }
 
 .card {
   position: relative;
-  /* Nền Card: Xanh rêu + Họa tiết Trống đồng mờ */
   background-color: var(--mil-green);
-  /* Gradient giả lập họa tiết tròn nếu chưa có ảnh */
-  background-image: 
-    var(--pattern-img), 
-    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.03) 0%, transparent 60%);
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain; /* Hoặc cover tùy ảnh */
-  background-blend-mode: overlay;
-  
   border: var(--border-gold);
   border-left: 4px solid var(--gold-metal); /* Nhấn cạnh trái */
   padding: 30px 24px;
@@ -266,8 +256,20 @@ a:hover { opacity: 0.9; }
   justify-content: center;
 }
 
+/* Card danh mục trang chính: nền Trống đồng + lớp phủ tối */
+.card--cat {
+  /* Nền Card: Xanh rêu + Họa tiết Trống đồng mờ */
+  background-image:
+    var(--pattern-img),
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.03) 0%, transparent 60%);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain; /* Hoặc cover tùy ảnh */
+  background-blend-mode: overlay;
+}
+
 /* Lớp phủ tối đè lên background card để chữ dễ đọc hơn trên họa tiết */
-.card::before {
+.card--cat::before {
   content: '';
   position: absolute;
   inset: 0;
