@@ -13,6 +13,7 @@ $counts = [
   'songs' => (int)$pdo->query("SELECT COUNT(*) AS c FROM songs")->fetch()['c'],
 ];
 
+$extra_css = ['/assets/admin.css'];
 $title = 'Dashboard — ' . APP_NAME;
 require_once __DIR__ . '/../includes/layout_header.php';
 ?>

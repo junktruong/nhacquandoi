@@ -109,6 +109,7 @@ if ($filterCat > 0) {
                           LIMIT 200")->fetchAll();
 }
 
+$extra_css = ['/assets/admin.css'];
 $title = 'Bài hát — ' . APP_NAME;
 require_once __DIR__ . '/../includes/layout_header.php';
 ?>

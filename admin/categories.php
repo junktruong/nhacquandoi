@@ -74,7 +74,7 @@ function render_tree(array $byParent, array $songCount, array $childCount, int $
 }
 
 $title = 'Danh mục — ' . APP_NAME;
-$extra_css = ['/assets/admin-categories.css'];
+$extra_css = ['/assets/admin.css', '/assets/admin-categories.css'];
 $extra_js  = ['/assets/admin-categories.js'];
 
 require_once __DIR__ . '/../includes/layout_header.php';
