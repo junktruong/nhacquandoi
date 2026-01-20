@@ -36,14 +36,14 @@
     localStorage.setItem(MANIFEST_KEY, JSON.stringify(m));
   }
 
-  function createModal() {
+  function createModal({ closable = true, showActions = true } = {}) {
     const wrap = document.createElement('div');
     wrap.className = 'offline-modal';
     wrap.innerHTML = `
       <div class="offline-card">
         <div class="offline-row">
           <div class="offline-title">Nhạc offline</div>
-          <button id="offlineCloseBtn" title="Đóng">✕</button>
+          ${closable ? '<button id="offlineCloseBtn" title="Đóng">✕</button>' : ''}
         </div>
         <div class="offline-muted" id="offlineMsg">Sẵn sàng.</div>
         <div class="offline-progress"><div id="offlineBar"></div></div>
@@ -51,17 +51,21 @@
           <div class="offline-muted" id="offlineStat">0/0</div>
           <div class="offline-muted" id="offlineNet">${navigator.onLine ? 'Online' : 'Offline'}</div>
         </div>
-        <div class="offline-actions">
-          <button id="offlineCheckBtn">Kiểm tra cập nhật</button>
-          <button id="offlineDownloadBtn" class="primary">Tải / Cập nhật</button>
-        </div>
+        ${showActions ? `
+          <div class="offline-actions">
+            <button id="offlineCheckBtn">Kiểm tra cập nhật</button>
+            <button id="offlineDownloadBtn" class="primary">Tải / Cập nhật</button>
+          </div>
+        ` : ''}
       </div>
     `;
     document.body.appendChild(wrap);
 
-    const close = () => wrap.remove();
-    wrap.querySelector('#offlineCloseBtn').addEventListener('click', close);
-    wrap.addEventListener('click', (e) => { if (e.target === wrap) close(); });
+    if (closable) {
+      const close = () => wrap.remove();
+      wrap.querySelector('#offlineCloseBtn')?.addEventListener('click', close);
+      wrap.addEventListener('click', (e) => { if (e.target === wrap) close(); });
+    }
 
     return {
       wrap,
@@ -72,8 +76,9 @@
       btnCheck: wrap.querySelector('#offlineCheckBtn'),
       btnDownload: wrap.querySelector('#offlineDownloadBtn'),
       setProgress(done, total) {
-        this.stat.textContent = `${done}/${total}`;
-        this.bar.style.width = total ? `${Math.floor(done * 100 / total)}%` : '0%';
+        const percent = total ? Math.floor(done * 100 / total) : 0;
+        this.stat.textContent = total ? `${done}/${total} • ${percent}%` : '0/0';
+        this.bar.style.width = total ? `${percent}%` : '0%';
       },
       setMsg(t) { this.msg.textContent = t; },
       setNet() { this.net.textContent = navigator.onLine ? 'Online' : 'Offline'; }
@@ -238,6 +243,9 @@
 
   // Mặc định disable để tránh bấm “hên xui”
   setInstallBtn('disabled');
+  if (isStandalone || localStorage.getItem('pwa_installed') === '1') {
+    setInstallBtn('hide');
+  }
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -270,45 +278,41 @@
   // ===== Offline audio precache (sau khi cài) =====
   const OFFLINE_AUDIO_KEY = 'offline_audio_cached_v2';
 
-  function toast(msg) {
-    let el = document.getElementById('offlineToast');
-    if (!el) {
-      el = document.createElement('div');
-      el.id = 'offlineToast';
-      el.style.cssText = `
-        position:fixed; left:12px; bottom:12px; z-index:9999;
-        background:rgba(0,0,0,.75); color:#fff; padding:10px 12px;
-        border-radius:12px; font-weight:700; font-size:13px;
-        border:1px solid rgba(255,255,255,.15);
-      `;
-      document.body.appendChild(el);
-    }
-    el.textContent = msg;
-    el.style.display = 'block';
-    clearTimeout(el.__t);
-    el.__t = setTimeout(() => (el.style.display = 'none'), 2200);
-  }
-
   async function precacheAllAudio() {
     if (!('caches' in window)) return;
     if (localStorage.getItem(OFFLINE_AUDIO_KEY) === '1') return;
-
-    toast('Đang chuẩn bị tải nhạc offline…');
+    const ui = createModal({ closable: false, showActions: false });
+    ui.setNet();
+    ui.setMsg('Đang chuẩn bị tải nhạc offline…');
+    if (!navigator.onLine) {
+      ui.setMsg('Đang offline. Kết nối mạng để tải nhạc.');
+      setTimeout(() => ui.wrap.remove(), 1200);
+      return;
+    }
 
     const res = await fetch('/api/offline_manifest.php', { cache: 'no-store' });
     const data = await res.json();
-    if (!data || !data.ok) return;
+    if (!data || !data.ok) {
+      ui.setMsg('Không lấy được danh sách nhạc offline.');
+      setTimeout(() => ui.wrap.remove(), 1200);
+      return;
+    }
 
     const list = data.songs || [];
     const total = list.length;
     if (!total) {
       localStorage.setItem(OFFLINE_AUDIO_KEY, '1');
+      ui.setProgress(0, 0);
+      ui.setMsg('Không có bài để tải.');
+      setTimeout(() => ui.wrap.remove(), 800);
       return;
     }
 
     // MUST khớp với sw.js
     const cache = await caches.open('audio-v2');
     let done = 0, cached = 0, failed = 0;
+    ui.setProgress(0, total);
+    ui.setMsg('Đang tải nhạc offline…');
 
     for (const s of list) {
       const url = s.path;
@@ -324,11 +328,15 @@
       } catch { failed++; }
 
       done++;
-      if (done % 5 === 0 || done === total) toast(`Tải offline: ${done}/${total}`);
+      ui.setProgress(done, total);
     }
 
     localStorage.setItem(OFFLINE_AUDIO_KEY, '1');
-    toast(`Offline xong: +${cached} bài (lỗi ${failed})`);
+    setLocalManifest({ hash: data.hash, songs: data.songs, savedAt: Date.now() });
+    setBadge(false);
+    ui.setProgress(total, total);
+    ui.setMsg(`Xong: ${cached}/${total} bài (lỗi ${failed}).`);
+    setTimeout(() => ui.wrap.remove(), 1000);
   }
 
   // chạy nếu đã cài hoặc đang mở dạng app
