@@ -614,13 +614,3 @@ code {
 }
 
 /* Các class tiện ích khác giữ nguyên nhưng đổi màu nếu cần */
-.alert {
-  background: rgba(224, 90, 90, 0.1);
-  border: 1px solid var(--danger);
-  color: #ffaaaa;
-}
-.alert.ok {
-  background: rgba(75, 83, 32, 0.5); /* Green background */
-  border: 1px solid #6ea36e;
-  color: #d4edda;
-}

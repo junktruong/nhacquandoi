@@ -36,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+$extra_css = ['/assets/admin.css'];
 $title = 'Tài khoản — ' . APP_NAME;
 require_once __DIR__ . '/../includes/layout_header.php';
 ?>
