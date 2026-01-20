@@ -14,7 +14,6 @@ header('Pragma: no-cache');
 header('Expires: 0');
 
 $pdo = db();
-$docsUrl = setting_get($pdo, 'docs_url', DOCS_URL);
 
 // Counts (UI + warning when turning a leaf category into a parent)
 $songCount = [];
@@ -42,8 +41,10 @@ function render_tree(array $byParent, array $songCount, array $childCount, int $
     $id = (int)$c['id'];
     $sc = (int)($songCount[$id] ?? 0);
     $cc = (int)($childCount[$id] ?? 0);
+    $docsUrl = (string)($c['docs_url'] ?? '');
+    $docsLabel = (string)($c['docs_label'] ?? '');
 
-    echo '<li class="cat-item" data-id="' . $id . '" data-songs="' . $sc . '" data-kids="' . $cc . '">';
+    echo '<li class="cat-item" data-id="' . $id . '" data-songs="' . $sc . '" data-kids="' . $cc . '" data-docs-url="' . e($docsUrl) . '" data-docs-label="' . e($docsLabel) . '">';
     echo '  <div class="cat-row">';
     echo '    <div class="handle" draggable="true" title="Kéo để đổi thứ tự">⠿</div>';
     echo '    <input class="cat-name" value="' . e((string)$c['name']) . '" disabled />';
@@ -60,6 +61,7 @@ function render_tree(array $byParent, array $songCount, array $childCount, int $
       echo '      <a class="cat-btn cat-btn-music" href="' . e(BASE_URL) . '/admin/songs.php?cat=' . $id . '" title="Quản lý bài hát">Nhạc</a>';
     }
 
+    echo '      <button class="cat-btn cat-btn-docs" type="button">Tài liệu</button>';
     echo '      <button class="cat-btn cat-btn-add" type="button">+ Con</button>';
     echo '      <button class="cat-btn cat-btn-del cat-btn--danger" type="button">Xóa</button>';
     echo '    </div>';
@@ -105,15 +107,6 @@ require_once __DIR__ . '/../includes/layout_header.php';
         </div>
       </div>
       <button class="cat-btn cat-btn--gold" type="button" data-add-root>+ Thêm danh mục cấp cao nhất</button>
-    </div>
-
-    <div class="cat-docs">
-      <div class="cat-docs__label">Liên kết tài liệu (Google Drive)</div>
-      <div class="cat-docs__row">
-        <input class="cat-docs__input" type="url" value="<?= e($docsUrl) ?>" placeholder="https://drive.google.com/..." data-docs-url>
-        <button class="cat-btn cat-btn--gold" type="button" data-docs-save>Lưu</button>
-      </div>
-      <div class="cat-hint">Để trống nếu muốn ẩn mục “Tài liệu” ở sidebar.</div>
     </div>
 
     <?php render_tree($byParent, $songCount, $childCount, 0); ?>

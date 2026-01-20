@@ -155,12 +155,26 @@ try {
   }
 
   if ($action === 'docs') {
+    $id = (int)($_POST['id'] ?? 0);
     $url = trim((string)($_POST['url'] ?? ''));
+    $label = trim((string)($_POST['label'] ?? ''));
+    if ($id <= 0) fail('Thiếu ID.');
     if ($url !== '' && !filter_var($url, FILTER_VALIDATE_URL)) {
       fail('Link không hợp lệ.');
     }
-    setting_set($pdo, 'docs_url', $url);
-    ok(['url' => $url]);
+    if ($url !== '' && $label === '') {
+      $label = 'Tài liệu';
+    }
+    if ($url === '') {
+      $label = '';
+    }
+    $pdo->prepare("UPDATE categories SET docs_label = :label, docs_url = :url WHERE id = :id")
+        ->execute([
+          ':label' => $label !== '' ? $label : null,
+          ':url' => $url !== '' ? $url : null,
+          ':id' => $id
+        ]);
+    ok(['id' => $id, 'label' => $label, 'url' => $url]);
   }
 
   fail('Action không hợp lệ.');

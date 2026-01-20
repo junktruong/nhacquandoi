@@ -5,7 +5,6 @@
   const csrf = root.getAttribute('data-csrf') || '';
   const api = root.getAttribute('data-api') || 'categories_api.php';
   const baseUrl = document.body?.getAttribute('data-baseurl') || '';
-  const docsInput = root.querySelector('[data-docs-url]');
 
   function qs(sel, el=document){ return el.querySelector(sel); }
   function qsa(sel, el=document){ return Array.from(el.querySelectorAll(sel)); }
@@ -35,6 +34,8 @@
     li.dataset.id = String(id);
     li.dataset.songs = '0';
     li.dataset.kids = '0';
+    li.dataset.docsUrl = '';
+    li.dataset.docsLabel = '';
     li.innerHTML = `
       <div class="cat-row">
         <div class="handle" draggable="true" title="Kéo để đổi thứ tự">⠿</div>
@@ -44,6 +45,7 @@
           <button class="cat-btn cat-btn-edit" type="button">Sửa</button>
           <button class="cat-btn cat-btn-save cat-btn--gold" type="button" style="display:none;">Lưu</button>
           <a class="cat-btn cat-btn-music" href="${baseUrl}/admin/songs.php?cat=${id}">Nhạc</a>
+          <button class="cat-btn cat-btn-docs" type="button">Tài liệu</button>
           <button class="cat-btn cat-btn-add" type="button">+ Con</button>
           <button class="cat-btn cat-btn-del cat-btn--danger" type="button">Xóa</button>
         </div>
@@ -270,15 +272,6 @@
     const btn = e.target.closest('button');
     if (!btn) return;
 
-    if (btn.matches('[data-docs-save]')) {
-      const url = (docsInput?.value || '').trim();
-      const data = await post('docs', { url });
-      if (!data.ok) return alert(data.error || 'Lỗi lưu liên kết');
-      if (docsInput) docsInput.value = data.url || '';
-      alert('Đã lưu liên kết tài liệu.');
-      return;
-    }
-
     if (btn.matches('[data-add-root]')) {
       const name = prompt('Tên danh mục mới (cấp cao nhất):');
       if (!name) return;
@@ -306,6 +299,21 @@
       nameInput.select();
       btnEdit.style.display = 'none';
       btnSave.style.display = '';
+      return;
+    }
+
+    if (btn.classList.contains('cat-btn-docs')) {
+      const currentLabel = (li.dataset.docsLabel || '').trim() || 'Tài liệu';
+      const currentUrl = (li.dataset.docsUrl || '').trim();
+      const label = prompt('Tên hiển thị cho mục tài liệu:', currentLabel);
+      if (label === null) return;
+      const url = prompt('Link tài liệu (để trống nếu muốn ẩn):', currentUrl);
+      if (url === null) return;
+      const data = await post('docs', { id: String(id), label: label.trim(), url: url.trim() });
+      if (!data.ok) return alert(data.error || 'Lỗi lưu liên kết');
+      li.dataset.docsLabel = data.label || '';
+      li.dataset.docsUrl = data.url || '';
+      alert('Đã lưu liên kết tài liệu.');
       return;
     }
 
