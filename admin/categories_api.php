@@ -154,6 +154,15 @@ try {
     ok(['id' => $id, 'parent_id' => $parent_id, 'sort' => $sort]);
   }
 
+  if ($action === 'docs') {
+    $url = trim((string)($_POST['url'] ?? ''));
+    if ($url !== '' && !filter_var($url, FILTER_VALIDATE_URL)) {
+      fail('Link không hợp lệ.');
+    }
+    setting_set($pdo, 'docs_url', $url);
+    ok(['url' => $url]);
+  }
+
   fail('Action không hợp lệ.');
 } catch (Throwable $e) {
   if ($pdo->inTransaction()) $pdo->rollBack();

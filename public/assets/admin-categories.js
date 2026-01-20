@@ -5,6 +5,7 @@
   const csrf = root.getAttribute('data-csrf') || '';
   const api = root.getAttribute('data-api') || 'categories_api.php';
   const baseUrl = document.body?.getAttribute('data-baseurl') || '';
+  const docsInput = root.querySelector('[data-docs-url]');
 
   function qs(sel, el=document){ return el.querySelector(sel); }
   function qsa(sel, el=document){ return Array.from(el.querySelectorAll(sel)); }
@@ -268,6 +269,15 @@
   root.addEventListener('click', async (e) => {
     const btn = e.target.closest('button');
     if (!btn) return;
+
+    if (btn.matches('[data-docs-save]')) {
+      const url = (docsInput?.value || '').trim();
+      const data = await post('docs', { url });
+      if (!data.ok) return alert(data.error || 'Lỗi lưu liên kết');
+      if (docsInput) docsInput.value = data.url || '';
+      alert('Đã lưu liên kết tài liệu.');
+      return;
+    }
 
     if (btn.matches('[data-add-root]')) {
       const name = prompt('Tên danh mục mới (cấp cao nhất):');

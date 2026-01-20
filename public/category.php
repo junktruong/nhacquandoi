@@ -5,6 +5,7 @@ require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/helpers.php';
 
 $pdo = db();
+$docsUrl = setting_get($pdo, 'docs_url', DOCS_URL);
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($id <= 0) { http_response_code(404); exit('Not found'); }
 
@@ -56,6 +57,11 @@ require_once __DIR__ . '/../includes/layout_header.php';
           <?php endforeach; ?>
         <?php else: ?>
           <div class="muted">Chưa có mục con.</div>
+        <?php endif; ?>
+        <?php if ($docsUrl !== ''): ?>
+          <a class="pill" href="<?= e($docsUrl) ?>" target="_blank" rel="noopener">
+            Tài liệu
+          </a>
         <?php endif; ?>
       </div>
     </aside>

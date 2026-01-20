@@ -14,6 +14,7 @@ header('Pragma: no-cache');
 header('Expires: 0');
 
 $pdo = db();
+$docsUrl = setting_get($pdo, 'docs_url', DOCS_URL);
 
 // Counts (UI + warning when turning a leaf category into a parent)
 $songCount = [];
@@ -104,6 +105,15 @@ require_once __DIR__ . '/../includes/layout_header.php';
         </div>
       </div>
       <button class="cat-btn cat-btn--gold" type="button" data-add-root>+ Thêm danh mục cấp cao nhất</button>
+    </div>
+
+    <div class="cat-docs">
+      <div class="cat-docs__label">Liên kết tài liệu (Google Drive)</div>
+      <div class="cat-docs__row">
+        <input class="cat-docs__input" type="url" value="<?= e($docsUrl) ?>" placeholder="https://drive.google.com/..." data-docs-url>
+        <button class="cat-btn cat-btn--gold" type="button" data-docs-save>Lưu</button>
+      </div>
+      <div class="cat-hint">Để trống nếu muốn ẩn mục “Tài liệu” ở sidebar.</div>
     </div>
 
     <?php render_tree($byParent, $songCount, $childCount, 0); ?>

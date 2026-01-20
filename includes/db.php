@@ -77,6 +77,14 @@ function init_schema(PDO $pdo): void {
         );
     ");
 
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS settings (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        );
+    ");
+
     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_categories_parent ON categories(parent_id);");
     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_songs_category ON songs(category_id);");
 }
@@ -95,9 +103,10 @@ function seed_defaults(PDO $pdo): void {
 
     // Categories
     $count = (int)$pdo->query("SELECT COUNT(*) AS c FROM categories")->fetch()['c'];
-    if ($count > 0) return;
+    $shouldSeedCategories = $count === 0;
 
-    $pdo->beginTransaction();
+    if ($shouldSeedCategories) {
+        $pdo->beginTransaction();
 
     $tops = [
         ['Nhạc nghi lễ', 10],
@@ -155,7 +164,30 @@ function seed_defaults(PDO $pdo): void {
         $k++;
     }
 
-    $pdo->commit();
+        $pdo->commit();
+    }
+
+    $exists = (int)$pdo->query("SELECT COUNT(*) AS c FROM settings WHERE key = 'docs_url'")->fetch()['c'];
+    if ($exists === 0) {
+        $pdo->prepare("INSERT INTO settings(key, value, updated_at) VALUES('docs_url', :value, :t)")
+            ->execute([':value' => DOCS_URL, ':t' => now_iso()]);
+    }
+}
+
+function setting_get(PDO $pdo, string $key, string $default = ''): string {
+    $st = $pdo->prepare("SELECT value FROM settings WHERE key = :key LIMIT 1");
+    $st->execute([':key' => $key]);
+    $row = $st->fetch();
+    if (!$row) return $default;
+    return (string)$row['value'];
+}
+
+function setting_set(PDO $pdo, string $key, string $value): void {
+    $pdo->prepare("
+        INSERT INTO settings(key, value, updated_at)
+        VALUES(:key, :value, :t)
+        ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
+    ")->execute([':key' => $key, ':value' => $value, ':t' => now_iso()]);
 }
 
 function categories_children(PDO $pdo, ?int $parentId): array {
