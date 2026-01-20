@@ -7,13 +7,17 @@ require_once __DIR__ . '/../includes/helpers.php';
 $pdo = db();
 $tops = $pdo->query("SELECT * FROM categories WHERE parent_id IS NULL ORDER BY sort ASC, id ASC")->fetchAll();
 
+$bgPath = __DIR__ . '/assets/background.mp4';
+$bgVersion = is_file($bgPath) ? (string) filemtime($bgPath) : '1';
+$bgVideoSrc = BASE_URL . '/assets/background.mp4?v=' . $bgVersion;
+
 $title = APP_NAME;
 require_once __DIR__ . '/../includes/layout_header.php';
 ?>
 
 <div class="video-bg" aria-hidden="true">
-  <video class="video-bg__media" autoplay muted loop playsinline>
-    <source src="<?= e(BASE_URL) ?>/assets/background.mp4" type="video/mp4">
+  <video class="video-bg__media" autoplay muted loop playsinline preload="auto" fetchpriority="high">
+    <source src="<?= e($bgVideoSrc) ?>" type="video/mp4">
   </video>
   <div class="video-bg__overlay"></div>
 </div>

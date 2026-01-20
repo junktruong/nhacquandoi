@@ -1,4 +1,4 @@
-const VERSION = "v3"; // tăng version
+const VERSION = "v4"; // tăng version
 const STATIC_CACHE = `static-${VERSION}`;
 const RUNTIME_CACHE = `runtime-${VERSION}`;
 const AUDIO_CACHE = `audio-v2`;
@@ -81,6 +81,11 @@ self.addEventListener("fetch", (event) => {
   // Never cache Admin pages/APIs
   if (url.pathname.startsWith("/admin")) {
     event.respondWith(fetch(req));
+    return;
+  }
+
+  if (url.pathname.endsWith("/assets/background.mp4") || url.pathname.endsWith(".mp4")) {
+    event.respondWith(fetch(new Request(req, { cache: 'no-store' })));
     return;
   }
 
