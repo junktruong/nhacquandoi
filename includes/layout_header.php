@@ -18,7 +18,7 @@ require_once __DIR__ . '/helpers.php';
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
 </head>
-<body data-baseurl="<?= e(BASE_URL) ?>">  
+<body data-baseurl="<?= e(BASE_URL) ?>"<?= !empty($body_class) ? ' class="' . e($body_class) . '"' : '' ?>>  
 <div class="app">
   <header class="topbar">
     <a class="brand" href="<?= e(BASE_URL) ?>/">

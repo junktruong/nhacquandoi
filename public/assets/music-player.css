@@ -1,0 +1,123 @@
+.page-player .container {
+  max-width: 1240px;
+  padding-top: 24px;
+}
+
+.page-player .two-col {
+  gap: 28px;
+  grid-template-columns: 280px minmax(0, 1fr);
+}
+
+.page-player .sidebar {
+  background: linear-gradient(180deg, rgba(18, 26, 20, 0.9), rgba(12, 18, 14, 0.95));
+  border: 1px solid rgba(255, 205, 0, 0.18);
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  position: sticky;
+  top: 96px;
+}
+
+.page-player .sidebar__top {
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 14px;
+}
+
+.page-player .sidebar__title {
+  font-size: 17px;
+}
+
+.page-player .pill {
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.page-player .player-card {
+  max-width: 900px;
+  background: linear-gradient(160deg, rgba(12, 18, 14, 0.94), rgba(10, 16, 12, 0.98));
+  border: 1px solid rgba(255, 205, 0, 0.35);
+  border-radius: 18px;
+  padding: 32px;
+}
+
+.page-player .player-card::after {
+  inset: 6px;
+  border-radius: 14px;
+  border-color: rgba(255, 205, 0, 0.25);
+}
+
+.page-player .big-title {
+  letter-spacing: 1.5px;
+}
+
+.page-player .player {
+  display: grid;
+  gap: 18px;
+  background: rgba(0, 0, 0, 0.38);
+  border-radius: 12px;
+}
+
+.page-player .player__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+}
+
+.page-player .player__progress,
+.page-player .player__volume,
+.page-player .player__filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.page-player .search {
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.page-player .song-list {
+  display: grid;
+  gap: 10px;
+}
+
+.page-player .song-item {
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.page-player .song-item:hover {
+  border-color: rgba(255, 205, 0, 0.25);
+}
+
+.page-player .song-item.is-playing {
+  background: rgba(255, 205, 0, 0.12);
+  border-color: rgba(255, 205, 0, 0.55);
+}
+
+.page-player .video-modal__card {
+  border-radius: 18px;
+  border: 1px solid rgba(255, 205, 0, 0.35);
+}
+
+@media (max-width: 1024px) {
+  .page-player .two-col {
+    grid-template-columns: 1fr;
+  }
+
+  .page-player .sidebar {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .page-player .player-card {
+    padding: 24px;
+  }
+}

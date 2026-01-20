@@ -34,6 +34,8 @@ if (!$children) {
 }
 
 $title = $cat['name'] . ' — ' . APP_NAME;
+$body_class = 'page-player';
+$extra_css = ['/assets/music-player.css'];
 require_once __DIR__ . '/../includes/layout_header.php';
 ?>
 <main class="container">

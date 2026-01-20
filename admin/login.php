@@ -18,6 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $title = 'Admin login — ' . APP_NAME;
+$body_class = 'page-login';
+$extra_css = ['/assets/admin-login.css'];
 require_once __DIR__ . '/../includes/layout_header.php';
 ?>
 <main class="container narrow">
