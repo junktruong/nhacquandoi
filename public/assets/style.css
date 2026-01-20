@@ -369,9 +369,11 @@ code {
 .page-author {
   margin: 40px auto 0;
   padding-top: 24px;
+  padding-bottom: 24px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   text-align: center;
   color: var(--muted);
+  background: #151a17bb;
 }
 
 .page-author__label {
@@ -420,6 +422,7 @@ code {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding-bottom: 12px;
   margin-bottom: 16px;
+    margin-top: 16px;
 }
 
 .pill {
@@ -545,6 +548,7 @@ code {
   background: rgba(255, 255, 255, 0.03);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   transition: all 0.2s;
+  color: #ffffff;
 }
 
 .song-item:hover {

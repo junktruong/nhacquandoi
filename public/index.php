@@ -50,7 +50,7 @@ require_once __DIR__ . '/../includes/layout_header.php';
 
   <div class="page-author">
     <div class="page-author__label">Tác giả</div>
-    <div class="page-author__name">Trung úy Nguyễn Văn Đúc</div>
+    <div class="page-author__name">Trung úy Nguyễn Văn Đức</div>
     <div class="page-author__unit">Phó đội trưởng Vận động quần chúng • Đồn Biên phòng Cửa Lân</div>
   </div>
 </main>
