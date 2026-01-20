@@ -41,8 +41,10 @@ function render_tree(array $byParent, array $songCount, array $childCount, int $
     $id = (int)$c['id'];
     $sc = (int)($songCount[$id] ?? 0);
     $cc = (int)($childCount[$id] ?? 0);
+    $docsUrl = (string)($c['docs_url'] ?? '');
+    $docsLabel = (string)($c['docs_label'] ?? '');
 
-    echo '<li class="cat-item" data-id="' . $id . '" data-songs="' . $sc . '" data-kids="' . $cc . '">';
+    echo '<li class="cat-item" data-id="' . $id . '" data-songs="' . $sc . '" data-kids="' . $cc . '" data-docs-url="' . e($docsUrl) . '" data-docs-label="' . e($docsLabel) . '">';
     echo '  <div class="cat-row">';
     echo '    <div class="handle" draggable="true" title="Kéo để đổi thứ tự">⠿</div>';
     echo '    <input class="cat-name" value="' . e((string)$c['name']) . '" disabled />';
@@ -59,6 +61,7 @@ function render_tree(array $byParent, array $songCount, array $childCount, int $
       echo '      <a class="cat-btn cat-btn-music" href="' . e(BASE_URL) . '/admin/songs.php?cat=' . $id . '" title="Quản lý bài hát">Nhạc</a>';
     }
 
+    echo '      <button class="cat-btn cat-btn-docs" type="button">Tài liệu</button>';
     echo '      <button class="cat-btn cat-btn-add" type="button">+ Con</button>';
     echo '      <button class="cat-btn cat-btn-del cat-btn--danger" type="button">Xóa</button>';
     echo '    </div>';

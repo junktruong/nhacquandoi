@@ -5,6 +5,7 @@ require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/helpers.php';
 
 $pdo = db();
+$docsUrl = setting_get($pdo, 'docs_url', DOCS_URL);
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($id <= 0) { http_response_code(404); exit('Not found'); }
 
@@ -24,6 +25,13 @@ if (!empty($cat['parent_id'])) {
     $siblings = categories_children($pdo, (int)$cat['parent_id']);
 } else {
     $siblings = $children;
+}
+
+$docSource = $parent ?: $cat;
+$docsUrl = trim((string)($docSource['docs_url'] ?? ''));
+$docsLabel = trim((string)($docSource['docs_label'] ?? ''));
+if ($docsLabel === '') {
+    $docsLabel = 'Tài liệu';
 }
 
 $songs = [];
@@ -56,6 +64,11 @@ require_once __DIR__ . '/../includes/layout_header.php';
           <?php endforeach; ?>
         <?php else: ?>
           <div class="muted">Chưa có mục con.</div>
+        <?php endif; ?>
+        <?php if ($docsUrl !== ''): ?>
+          <a class="pill" href="<?= e($docsUrl) ?>" target="_blank" rel="noopener">
+            <?= e($docsLabel) ?>
+          </a>
         <?php endif; ?>
       </div>
     </aside>
