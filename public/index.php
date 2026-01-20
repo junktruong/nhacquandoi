@@ -43,7 +43,7 @@ require_once __DIR__ . '/../includes/layout_header.php';
     <?php foreach ($tops as $c): ?>
       <a class="card card--cat" href="<?= e(BASE_URL) ?>/category.php?id=<?= (int)$c['id'] ?>">
         <div class="card__title"><?= e($c['name']) ?></div>
-        <div class="card__sub">Xem bài hát / mục con</div>
+        <!-- <div class="card__sub">Xem bài hát / mục con</div> -->
       </a>
     <?php endforeach; ?>
   </div>
